@@ -471,6 +471,6 @@ def delete_data(table_name):
     # Return a success message
     return jsonify({"msg": "Data deleted successfully"}), 200
 
-def handler(event, context):
+if __name__ == '__main__':
     init_users_db()
-    return app(event, context)
+    app.run(host='0.0.0.0', port=8080)
