@@ -7,7 +7,7 @@ import zipfile
 app = Flask(__name__)
 app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'default_secret_key')  # Default key for local development
 jwt = JWTManager(app)
-UPLOAD_FOLDER = os.path.join(os.getcwd(), 'data')
+UPLOAD_FOLDER = '/tmp/data'
 USERS_DATABASE = os.path.join(UPLOAD_FOLDER, 'users.db')
 ALLOWED_EXTENSIONS = {'db'}
 
