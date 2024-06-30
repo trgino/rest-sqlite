@@ -7,9 +7,8 @@ import zipfile
 app = Flask(__name__)
 app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'default_secret_key')  # Default key for local development
 jwt = JWTManager(app)
-USERS_DATABASE = os.path.join(os.getcwd(), 'data', 'users.db')
 UPLOAD_FOLDER = os.path.join(os.getcwd(), 'data')
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+USERS_DATABASE = os.path.join(UPLOAD_FOLDER, 'users.db')
 ALLOWED_EXTENSIONS = {'db'}
 
 def allowed_file(filename):
@@ -20,7 +19,13 @@ def get_db(database):
     return conn
 
 def init_users_db():
-    os.makedirs(os.path.dirname(USERS_DATABASE), exist_ok=True)
+    if not os.path.exists(UPLOAD_FOLDER):
+        os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+        print("Directory UPLOAD_FOLDER created successfully.")
+
+    if not os.access(UPLOAD_FOLDER, os.W_OK):
+        print("Cannot write to directory UPLOAD_FOLDER. Check permissions.")
+
     conn = get_db(USERS_DATABASE)
     conn.execute('''CREATE TABLE IF NOT EXISTS users
                    (id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -181,7 +186,7 @@ def upload_database():
     if not db_name:
         return jsonify({"msg": "Missing database name"}), 400
     
-    db_path = os.path.join(app.config['UPLOAD_FOLDER'], f'{db_name}.db')
+    db_path = os.path.join(UPLOAD_FOLDER, f'{db_name}.db')
     
     if os.path.exists(db_path) and not force:
         return jsonify({"msg": "Database already exists. Use force option to overwrite."}), 400
@@ -471,6 +476,7 @@ def delete_data(table_name):
     # Return a success message
     return jsonify({"msg": "Data deleted successfully"}), 200
 
+init_users_db()
+
 if __name__ == '__main__':
-    init_users_db()
     app.run(host='0.0.0.0', port=8080)
