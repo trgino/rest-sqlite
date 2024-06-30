@@ -33,6 +33,9 @@ def init_users_db():
     conn.commit()
     conn.close()
 
+@app.route('/')
+def hello():
+    return "Hello, vercel!"
 @app.route('/user/login', methods=['POST'])
 def login():
     """
